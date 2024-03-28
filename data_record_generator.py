@@ -18,7 +18,7 @@ class DataRecord:
         return str(row['Employer’s/Trade name']).ljust(120)
 
     def process_employer_physical_address(self, row):
-        address = str(row['Employer’s physical business address'])
+        address = row['Employer’s physical business address']
         if pd.notnull(address):
             chunks = [address[i:i + 35] for i in range(0, len(address), 35)]
             formatted_address = ''.join(chunks)
@@ -29,8 +29,9 @@ class DataRecord:
     def process_employer_physical_post_code(self, row):
         return str(row['Employer’s physical business postal code']).ljust(10)[:10] if pd.notnull(row['Employer’s physical business postal code']) else ' ' * 10
 
+
     def process_employer_post_address(self, row):
-        address = str(row['Employer’s postal address'])
+        address = row['Employer’s postal address']
         if pd.notnull(address):
             chunks = [address[i:i + 35] for i in range(0, len(address), 35)]
             formatted_address = ''.join(chunks)
@@ -90,7 +91,7 @@ class DataRecord:
         return str(row['Taxpayer first names']).strip().ljust(90)[:90] if pd.notnull(row['Taxpayer first names']) else ' ' * 90
 
     def process_tp_res_address(self, row):
-        address = str(row['TP-RES-ADDRESS'])
+        address = row['TP-RES-ADDRESS']
         if pd.notnull(address):
             chunks = [address[i:i + 35] for i in range(0, len(address), 35)]
             formatted_address = ''.join(chunks)
@@ -102,7 +103,7 @@ class DataRecord:
         return str(row['Taxpayer residential postal code']).strip().ljust(10)[:10] if pd.notnull(row['Taxpayer residential postal code']) else ' ' * 10
 
     def process_tp_post_address(self, row):
-        address = str(row['Taxpayer postal address'])
+        address = row['Taxpayer postal address']
         if pd.notnull(address):
             chunks = [address[i:i + 35] for i in range(0, len(address), 35)]
             formatted_address = ''.join(chunks)
@@ -188,11 +189,11 @@ class DataRecord:
     def process_yoa_work_days_outside_sa(self, row):
         return str(row['YOA-WORK-DAYS-OUTSIDE-SA']).zfill(3)[-3:] + '0' * (3 * 15) if pd.notnull(row['YOA-WORK-DAYS-OUTSIDE-SA']) else '0' * (3 * 16)
 
-
     # this function takes a row of data, retrieves the value from the column 'YOA-DEEMED-ACCRUAL', multiplies it by 100, converts it to an integer, converts it to a string, pads it with leading zeros to make it 15 characters long, and then returns the resulting string.
     def process_yoa_deemed_accrual(self, row):
         yoa_deemed_accrual = row['YOA-DEEMED-ACCRUAL'] if pd.notnull(row['YOA-DEEMED-ACCRUAL']) else 0
         return str(int(yoa_deemed_accrual * 100)).zfill(15) + '0' * (15 * 15)
+
 
     def process_yoa_used_prior_to_vesting(self, row):
         yoa_used_prior_to_vesting = row['YOA-USED-PRIOR-TO-VESTING'] if pd.notnull(row['YOA-USED-PRIOR-TO-VESTING']) else 0
@@ -213,6 +214,47 @@ class DataRecord:
     def process_taxable_portion(self, row):
         taxable_portion = row['Taxable portion'] if pd.notnull(row['Taxable portion']) else 0
         return str(int(taxable_portion * 100)).zfill(15)
+
+    def process_severance_benef_payable(self, row):
+        severance_benef_payable = row['SEVERANCE-BENEF-PAYABLE'] if pd.notnull(row['SEVERANCE-BENEF-PAYABLE']) else 0
+        return str(int(severance_benef_payable * 100)).zfill(15)
+
+    def process_employ_owned_policy_amount(self, row):
+        employ_owned_policy_amount = row['EMPLOY-OWNED-POLICY-AMOUNT'] if pd.notnull(row['EMPLOY-OWNED-POLICY-AMOUNT']) else 0
+        return str(int(employ_owned_policy_amount * 100)).zfill(15)
+
+    def process_SECT_10_1_GB_III_COMP(self, row):
+        SECT_10_1_GB_III_COMP = row['SECT-10-1-GB-III-COMP'] if pd.notnull(row['SECT-10-1-GB-III-COMP']) else 0
+        return str(int(SECT_10_1_GB_III_COMP * 100)).zfill(15)
+
+    def process_leave_payment(self, row):
+        leave_payment = row['LEAVE-PAYMENT'] if pd.notnull(row['LEAVE-PAYMENT']) else 0
+        return str(int(leave_payment * 100)).zfill(15)
+
+    def process_notice_payment(self, row):
+        notice_payment = row['NOTICE-PAYMENT'] if pd.notnull(row['NOTICE-PAYMENT']) else 0
+        return str(int(notice_payment * 100)).zfill(15)
+
+    def process_arbitration_ccma_award(self, row):
+        arbitration_ccma_award = row['ARBITRATION-CCMA-AWARD'] if pd.notnull(row['ARBITRATION-CCMA-AWARD']) else 0
+        return str(int(arbitration_ccma_award * 100)).zfill(15)
+
+    def process_other_amount_nature(self, row):
+        other_amount_nature = row['OTHER-AMOUNT-NATURE']
+        if pd.notnull(other_amount_nature):
+            chunks = [other_amount_nature[i:i + 20] for i in range(0, len(other_amount_nature), 20)]
+            formatted_nature = ''.join(chunks)
+            return formatted_nature.ljust(20 * 7)[:20 * 7]
+        else:
+            return ' ' * (20 * 7)
+
+    def process_other_amount(self, row):
+        other_amount = row['OTHER-AMOUNT'] if pd.notnull(row['OTHER-AMOUNT']) else 0
+        return str(int(other_amount * 100)).zfill(15) + '0' * (15 * 6)
+
+    def process_gross_amount_payable(self, row):
+        gross_amount_payable = row['GROSS-AMOUNT-PAYABLE'] if pd.notnull(row['GROSS-AMOUNT-PAYABLE']) else 0
+        return str(int(gross_amount_payable * 100)).zfill(15)
 
     def process_declaration_ind(self, row):
         return row['DECLARATION-IND'] if pd.notnull(row['DECLARATION-IND']) else 'Y'
