@@ -41,3 +41,8 @@ The primary functions are:
 The code uses the pandas library to read and process Excel files, os and sys modules to interact with the operating system and environment variables, and logging to track execution and store the log in a text file. The win32com.client module is used to interact with Microsoft Outlook to send an email with the log file attached.
 
 # Outcome Achieved:
+1. Improved Efficiency: The implementation of this integrated automation has significantly improved the efficiency of the payroll data processing and submission process. By automating the conversion process and streamlining the workflow, the time required to submit Tax Directive requests to the South African Revenue Services has been reduced.
+2. Enhanced Data Accuracy: This automation ensures that the data entered by the end user is accurate and meets the standards required by the South African Revenue Services. This has reduced the likelihood of errors in the submission process.
+3. Cost Savings: By eliminating the need for a third party to handle the activity on behalf of Kumba and Platinum Payroll, the automation has helped reduce costs associated with outsourcing this task.
+4. Improved Data Security: This automation provides a secure way to store and manage the payroll data, ensuring that sensitive information is protected.
+5. User-Friendly Interface: This automation has a user-friendly interface that makes it easy for end users to fill out the input form and submit the data.
