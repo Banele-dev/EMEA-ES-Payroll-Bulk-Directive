@@ -256,6 +256,34 @@ class DataRecord:
         gross_amount_payable = row['GROSS-AMOUNT-PAYABLE'] if pd.notnull(row['GROSS-AMOUNT-PAYABLE']) else 0
         return str(int(gross_amount_payable * 100)).zfill(15)
 
+    def process_directive_request_id_number(self, row):
+        return str(row['Directive request ID number'] if pd.notnull(row['Directive request ID number']) else ' ').ljust(20)
+
+    def process_directive_id(self, row):
+        return str(row['Directive ID (Original directive request)']).zfill(15)[:15] if pd.notnull(row['Directive ID (Original directive request)']) else '0' * 15
+
+    def process_fsca_registration_number(self, row):
+        return str(row['FSCA registration number'] if pd.notnull(row['FSCA registration number ']) else ' ').ljust(19)
+
+    def process_approved_fund_number(self, row):
+        return str(row['Approved fund number']).ljust(11)[:11] if pd.notnull(row['Approved fund number']) else ' ' * 11
+
+    def process_insurer_fsca_regisstered_number(self, row):
+        return str(row['FSCA registered insurer number']).ljust(12)[:12] if pd.notnull(row['FSCA registered insurer number']) else ' ' * 12
+
+    def process_directive_cancellation_reason(self, row):
+        return str(row['Directive cancellation reason']).ljust(120)[:120] if pd.notnull(row['Directive cancellation reason']) else ' ' * 120
+
+    def process_contact_person(self, row):
+        return str(row['Contact Person']).ljust(120)[:120] if pd.notnull(row['Contact Person']) else ' ' * 120
+
+    def process_dial_code_contact_person(self, row):
+        return str(row['Contact Person dialing code']).replace("(", "").replace(")", "").ljust(10)[:10] if pd.notnull(row['Contact Person dialing code']) else ' ' * 10
+
+
+    def process_tel_contact_person(self, row):
+        return str(row['Contact Person telephone number']).replace(" ", "").ljust(10)[:10] if pd.notnull(row['Contact Person telephone number']) else ' ' * 10
+
     def process_declaration_ind(self, row):
         return row['DECLARATION-IND'] if pd.notnull(row['DECLARATION-IND']) else 'Y'
 
