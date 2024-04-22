@@ -93,6 +93,12 @@ except Exception as e:
     logging.error(f"An error occurred while extracting header fields: Here is the error {e}")
     status_automation = "Failed"
 
+# First checks if the stripped value is an empty string, indicating that the entire value consisted of zeros. If it is empty, it returns a single zero. Otherwise, it returns the stripped value.
+def clean_value(value):
+    if value.lstrip('0') == '':
+        return '0'
+    return value.lstrip('0')
+
 # iterates over each data_record in the data_records list and extracts specific fields from each data_record. It then appends the extracted fields as a list to the data_fields list
 data_fields = []
 try:
@@ -108,14 +114,14 @@ try:
             data_record[67:75].strip(),  # issue_date
             data_record[75:83].strip(),  # validity_start
             data_record[83:91].strip(),  # validity_end
-            data_record[91:106].strip(),  # gross_amount
+            clean_value(data_record[91:106].strip()),  # gross_amount
             data_record[106:114].strip(),  # accrual_date
             data_record[114:118].strip(),  # source_code
             data_record[118:133].strip(),  # serv_rend_loc_amt
             data_record[133:137].strip(),  # serv_rend_loc_source_code
             data_record[137:152].strip(),  # serv_rend_for_amt
             data_record[152:156].strip(),  # serv_rend_for_source_code
-            data_record[156:171].strip(),  # tax_withheld
+            clean_value(data_record[156:171].strip()),  # tax_withheld
             data_record[171:175].strip(),  # year_of_assessment
             data_record[175:190].strip(),  # pre_1march1998_amt
             data_record[190:205].strip(),  # trf_amt
@@ -129,18 +135,18 @@ try:
             data_record[310:325].strip(),  # total_benefit
             data_record[325:327].strip(),  # tax_rate
             data_record[327:342].strip(),  # tax_free_portion
-            data_record[342:357].strip(),  # gross_amount_paye
+            clean_value(data_record[342:357].strip()),  # gross_amount_paye
             data_record[357:358].strip(),  # deduction_frequency
             data_record[358:373].strip(),  # allowed_contributions
             data_record[373:386].strip(),  # approved_deemed_remuneration
             data_record[386:401].strip(),  # it88l_ref_no
-            data_record[401:416].strip(),  # assessed_tax_amount
+            clean_value(data_record[401:416].strip()),  # assessed_tax_amount
             data_record[416:435].strip(),  # assessed_tax_prn
-            data_record[435:450].strip(),  # admin_penalty
+            clean_value(data_record[435:450].strip()),  # admin_penalty
             data_record[450:469].strip(),  # admin_penalty_prn
             data_record[469:514].strip(),  # provisional_tax_amount
             data_record[514:532].strip(),  # provisional_tax_period
-            data_record[532:589].strip(),  # provisional_tax_prn
+            # data_record[532:589].strip(),  # Provisional Tax Payment Reference Number
         ])
         logging.info("The data fields has been extracted successfully")
         logging.info(f"Number of data record to be generated: {len(data_records)}")
@@ -182,7 +188,7 @@ except Exception as e:
 try:
     # Create a DataFrame for header, data, and trailer records using the three lists
     header_df = pd.DataFrame([header_fields], columns=["File section identifier", "Information type", "Information sub-type", "Test data indicator", "File series control field", "External system identification", "Interface version number", "Unique file identifier", "Date and time of file creation", "Unique file identifier of the file from which the response was generated", "Source file processing status", "Tax Directive Request Type"])
-    data_df = pd.DataFrame(data_fields, columns=["File section identifier", "Directive request ID number", "Directive application ID", "The Income Tax area to which this taxpayer belongs", "Income Tax reference number", "Directive ID (Original directive request)", "Request status", "Date of directive issue", "The start date of the validity period of this directive", "The end date of the validity period of this directive", "Gross amount of lump sum", "Date of accrual of lump sum", "The lump sum source code", "Services rendered local amount", "Services rendered local source code", "Services rendered abroad (foreign) amount", "Services rendered foreign source code", "Tax Withheld", "The assessment of tax year to which this tax directive applies", "Vested right pre-2 March 1998", "Amount Transferred", "Own contribution to a provident fund (up to 1 March 2016)", "Contributions not previously allowed as a deduction", "Transferred divorce benefit previously taxed", "Amount_exempt_based_on_services_outside_the_Republic", "AIPF member transfer contributions", "Amount exempt in terms of section 10(1)(o)(ii)", "Deemed provident fund contributions (After tax pension benefit)", "Full benefit used to purchase an annuity", "Tax free portion of the gross lump sum gratuity/remuneration", "Tax free portion of the gross lump sum gratuity/remuneration", "PAYE amount to be deducted from gross remuneration", "Frequency of deducting PAYE amount from gross lump sum gratuity/remuneration", "Contributions allowed as exemption from lump sum", "Approved monthly deemed remuneration", "IT 88L reference number", "Tax amount to be deducted for outstanding Assessed tax", "Assessed Tax Payment Reference Number", "Administrative Penalty", "Administrative Penalty Payment Reference Number", "Provisional Tax amount to be deducted for outstanding Provisional Tax", "Period for which Provisional tax is outstanding", "Provisional Tax Payment Reference Number"])
+    data_df = pd.DataFrame(data_fields, columns=["File section identifier", "Directive request ID number", "Directive application ID", "The Income Tax area to which this taxpayer belongs", "Income Tax reference number", "Directive ID (Original directive request)", "Request status", "Date of directive issue", "The start date of the validity period of this directive", "The end date of the validity period of this directive", "Gross amount of lump sum", "Date of accrual of lump sum", "The lump sum source code", "Services rendered local amount", "Services rendered local source code", "Services rendered abroad (foreign) amount", "Services rendered foreign source code", "Tax Withheld", "The assessment of tax year to which this tax directive applies", "Vested right pre-2 March 1998", "Amount Transferred", "Own contribution to a provident fund (up to 1 March 2016)", "Contributions not previously allowed as a deduction", "Transferred divorce benefit previously taxed", "Amount_exempt_based_on_services_outside_the_Republic", "AIPF member transfer contributions", "Amount exempt in terms of section 10(1)(o)(ii)", "Deemed provident fund contributions (After tax pension benefit)", "Full benefit used to purchase an annuity", "Tax free portion of the gross lump sum gratuity/remuneration", "Tax free portion of the gross lump sum gratuity/remuneration", "PAYE amount to be deducted from gross remuneration", "Frequency of deducting PAYE amount from gross lump sum gratuity/remuneration", "Contributions allowed as exemption from lump sum", "Approved monthly deemed remuneration", "IT 88L reference number", "Tax amount to be deducted for outstanding Assessed tax", "Assessed Tax Payment Reference Number", "Administrative Penalty", "Administrative Penalty Payment Reference Number", "Provisional Tax amount to be deducted for outstanding Provisional Tax", "Period for which Provisional tax is outstanding"])
     trailer_df = pd.DataFrame([trailer_fields], columns=["File section identifier", "Number of records in this file", "Gross amount of lump sum", "PAYE amount to be deducted from gross remuneration", "Tax free portion of the gross lump sum gratuity/remuneration", "Tax amount to be deducted for outstanding Assessed tax", "Provisional Tax amount to be deducted for outstanding Provisional Tax", "Tax free portion of the gross lump sum gratuity/remuneration", "Vested right pre-2 March 1998", "Amount Transferred", "Own contribution to a provident fund (up to 1 March 2016)", "Contributions not previously allowed as a deduction", "Transferred divorce benefit previously taxed", "Amount_exempt_based_on_services_outside_the_Republic", "AIPF member transfer contributions", "Amount exempt in terms of section 10(1)(o)(ii)", "Administrative Penalty Payment Reference Number", "Full benefit used to purchase an annuity"])
     logging.info("DataFrames has been created successfully")
     status_automation = "Successfully"
@@ -214,7 +220,7 @@ email.Subject = 'Automation Team - Automation Log'
 email_body = "EMEA ES Payroll Bulk Directive" + "_" + str(datetime.today()) + "_" + str(status_automation) + "_" + str(execution_duration) + "_" + str(total_data_records) + "_" + "number of Data Record generated"
 
 email.HTMLBody = email_body
-email_recipients = ['banele.madikane@angloamerican.com', 'breno.andrade@angloamerican.com']
+email_recipients = ['banele.madikane@angloamerican.com']
 email.To = '; '.join(email_recipients)
 
 # Attach the log file
