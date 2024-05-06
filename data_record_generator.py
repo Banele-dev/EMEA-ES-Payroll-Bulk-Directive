@@ -133,6 +133,7 @@ class DataRecord:
                 tp_annual_income = '0'.rjust(13, '0')
         return tp_annual_income
 
+
     def process_date_of_accrual(self, row):
         return datetime.strptime(str(row['Date when gross amount accrued']), '%Y.%m.%d').strftime('%Y%m%d') if pd.notnull(row['Date when gross amount accrued']) else ' ' * 8
 
@@ -259,8 +260,11 @@ class DataRecord:
     def process_directive_request_id_number(self, row):
         return str(row['Directive request ID number'] if pd.notnull(row['Directive request ID number']) else ' ').ljust(20)
 
+    # def process_directive_id(self, row):
+    #     return str(row['Directive ID (Original directive request)']).zfill(15)[:15] if pd.notnull(row['Directive ID (Original directive request)']) else '0' * 15
+
     def process_directive_id(self, row):
-        return str(row['Directive ID (Original directive request)']).zfill(15)[:15] if pd.notnull(row['Directive ID (Original directive request)']) else '0' * 15
+        return str(row['Directive ID (Original directive request)']).ljust(15)[:15] if pd.notnull(row['Directive ID (Original directive request)']) else ' ' * 15
 
     def process_fsca_registration_number(self, row):
         return str(row['FSCA registration number'] if pd.notnull(row['FSCA registration number ']) else ' ').ljust(19)

@@ -14,17 +14,17 @@ import time
 warnings.filterwarnings("ignore", category=UserWarning)
 
 ## Setting variables to check is this version matches with the GSS Automation Team's control
-application = "ES_Payroll Bulk Directive"
-version = "v01"
-user_name = os.getlogin()
-path = f"C:/Users/{user_name}/Box/Automation Script Versions/versions.xlsx"
-df = pd.read_excel(path)
-filter_criteria = (df['app'] == application) & (df['versão'] == version)
-start_time = None
-
-if not filter_criteria.any():
-    input('Outdated app, talk to the automation team. Press ENTER to close the code \n')
-    quit()
+# application = "ES_Payroll Bulk Directive"
+# version = "v02"
+# user_name = os.getlogin()
+# path = f"C:/Users/{user_name}/Box/Automation Script Versions/versions.xlsx"
+# df = pd.read_excel(path)
+# filter_criteria = (df['app'] == application) & (df['versão'] == version)
+# start_time = None
+#
+# if not filter_criteria.any():
+#     input('Outdated app, talk to the automation team. Press ENTER to close the code \n')
+#     quit()
 
 # Initialize Tkinter
 root = Tk()
@@ -37,6 +37,7 @@ if not excel_file_path:
     logging.info("No file selected. Exiting...")
     sys.exit()
 
+user_name = os.getlogin()
 start_time = time.time()
 
 # Read Header Record
@@ -45,7 +46,7 @@ header_data = pd.read_excel(excel_file_path, sheet_name='Header Record')
 # Check the external system identification value
 info_type = header_data.iloc[0]['Information type']
 
-if info_type == 'IRP3S':
+if info_type == 'IRP3S': # Share Payments
     ################################ HEADER RECORD FUNCTION ##################################
     # Function to generate the header record with all entries left-justified and blank-padded
     def generate_header_record(row):
@@ -65,11 +66,9 @@ if info_type == 'IRP3S':
             # Combine all the parts into one header string
             header_record = f"{sec_id}{info_type}{info_subtype}{test_data}{file_series_ctl}{ext_sys}{ver_no}{own_file_id}{gen_time}{tax_calc_ind}"
             logging.info('Header Record generated successfully.')
-            status_automation = "Successful"
             return header_record
         except Exception as e:
             logging.error(f"Error during Header Record generation.Here it follows the error: {e}")
-            status_automation = "Failed"
 
 
     ################################ DATA RECORD FUNCTION ##################################
@@ -138,11 +137,9 @@ if info_type == 'IRP3S':
             # Combine all the parts into one header string
             data_record = f"{sec_id}{reg_seq_num}{paye_ref_no}{emp_name}{emp_physical_address}{emp_physical_post_code}{emp_post_address}{emp_post_code}{emp_dial_code}{emp_tel_no}{emp_contact_person}{email_address_administrator}{it_ref_no}{no_it_ref_reason_text}{tp_id}{tp_other_id}{passport_country}{tp_employee_no}{tp_dob}{tp_surname}{tp_inits}{tp_firstnames}{tp_res_address}{tp_res_code}{tp_post_address}{tp_post_code}{tax_year}{dir_reason}{tp_annual_income}{date_of_accrual}{empl_tax_resident_ind}{S10_1_O_II_IND}{SERV_REND_ABROAD_IND}{SERV_REND_ABROAD_AMT}{TAX_WITHHELD_IND}{TAX_WITHHELD_AMT}{start_date_qual_per}{end_date_qual_per}{tot_work_day_qual_per}{work_days_outside_sa_qual_per}{start_date_srce_per}{end_date_srce_per}{tot_work_days_srce_per}{work_days_outside_sa_srce_per}{yoa_year}{yoa_tot_work_days}{yoa_work_days_outside_sa}{yoa_deemed_accrual}{yoa_used_prior_to_vesting}{yoa_portion_gain_qual_exempt}{gross_value}{S101OII_exempt_amount}{taxable_portion}{declaration_ind}{paper_resp}"
             logging.info(f"Line number {str(row['Line_Num'])} from Data Record generated successfully.")
-            status_automation = "Successfully"
             return data_record
         except Exception as e:
             logging.error(f"Error in line number {str(row['Line_Num'])} during Data Record generation. Here it follows the error: {e}")
-            status_automation = "Failed"
 
 
     ################################ TRAILER RECORD FUNCTION ##################################
@@ -162,11 +159,9 @@ if info_type == 'IRP3S':
             # Combine all the parts into one trailer string
             trailer_record = f"{sec_id}{rec_no}{annual_income}{gross_value}{exempt_amount}{taxable_portion}"
             logging.info('Trailer Record generated successfully.')
-            status_automation = "Successfully"
             return trailer_record
         except Exception as e:
             logging.error(f"Error during Trailer Record generation.Here it follows the error: {e}")
-            status_automation = "Failed"
 
     ################################ LOG PREPARATION ##################################
 
@@ -225,8 +220,8 @@ if info_type == 'IRP3S':
 
         # Check the external system identification value
         ext_sys_id = header_data.iloc[0]['External system identification']
-        # file_path = f"C:\\Users\\{user_name}\\Desktop"
-        file_path = f"C:/Users/{user_name}/PycharmProjects/EMEA_ES_Payroll%20Bulk%20Directive/EMEA_ES_Payroll%20Bulk%20Directive"
+        # file_path = f"C:\\Users\\{user_name}\\Documents\\EMEA_ES_Payroll%20Bulk%20Directive"
+        file_path = f"C:\\Users\\{user_name}\\PycharmProjects\\EMEA_ES_Payroll%20Bulk%20Directive\\EMEA_ES_Payroll%20Bulk%20Directive\\Directive requests for Share Payments"
 
         # Define the counter file based on the external system identification
         if ext_sys_id == 'KUMBAIRO':
@@ -275,7 +270,7 @@ if info_type == 'IRP3S':
             logging.info(f"Error opening the database, please check the data content again. Here it follows the error: {e}")
             status_automation = "Failed"
 
-elif info_type == 'IRP3A':
+elif info_type == 'IRP3A': # Retrenchments
     def generate_header_record(row):
         try:
             # Extract required data from the Excel row
@@ -367,6 +362,7 @@ elif info_type == 'IRP3A':
             # Trailer fields
             sec_id = 'T'
             rec_no = str(rec_nb).rjust(8, '0')
+
             annual_income = '{:0>16}'.format(int(annual_income_sum))
             # annual_income = '{:0>16}'.format(int(round(annual_income_sum)))
             # first convert the gross_value_sum to cents by multiplying it by 100 and converting it to an integer. Then, we use string formatting to create a string with a width of 20 characters, right-justified, and filled with zeros. The {:0>20} format specification means to pad the string with zeros on the left until it reaches a width of 20 characters.
@@ -378,6 +374,8 @@ elif info_type == 'IRP3A':
             arbitration_ccma_award = '{:0>20}'.format(int(arbitration_ccma_award_sum * 100))
             other_amount = '{:0>20}'.format(int(other_amount_sum * 100))
             gross_amount_payable = '{:0>20}'.format(int(gross_amount_payable_sum * 100))
+
+            print("Sum of Taxpayer annual income:", annual_income_sum)
 
             # Combine all the parts into one trailer string
             trailer_record = f"{sec_id}{rec_no}{annual_income}{severance_benef_pay}{employ_owned_policy_amt}{SECT_10_1_GB_III_COMP}{leave_payment}{notice_payment}{arbitration_ccma_award}{other_amount}{gross_amount_payable}"
@@ -426,6 +424,7 @@ elif info_type == 'IRP3A':
         # Get total number of records in the data record section of the file.
         rec_nb = len(data_data)
 
+
         # Calculating: Annual Income Sum - # Gross Value Sum - # Exemption Amount Sum - # Taxable Portion Sum
         annual_income_sum = data_data['Taxpayer annual income'].sum()
         severance_benef_pay_sum = data_data['SEVERANCE-BENEF-PAYABLE'].sum()
@@ -437,6 +436,8 @@ elif info_type == 'IRP3A':
         other_amount_sum = data_data['OTHER-AMOUNT'].sum()
         gross_amount_payable_sum = data_data['GROSS-AMOUNT-PAYABLE'].sum()
         logging.info('Database "ES Payroll Bulk Tax Directive Template.xlsx" opened successfully.')
+
+
 
         # Iterate through rows in each sheet and generate records
         header_records = [generate_header_record(row) for index, row in header_data.iterrows()]
@@ -450,8 +451,8 @@ elif info_type == 'IRP3A':
 
         # Check the external system identification value
         ext_sys_id = header_data.iloc[0]['External system identification']
-        # file_path = f"C:\\Users\\{user_name}\\Desktop"
-        file_path = f"C:/Users/{user_name}/PycharmProjects/EMEA_ES_Payroll%20Bulk%20Directive/EMEA_ES_Payroll%20Bulk%20Directive"
+        # file_path = f"C:\\Users\\{user_name}\\Documents\\EMEA_ES_Payroll%20Bulk%20Directive"
+        file_path = f"C:\\Users\\{user_name}\\PycharmProjects\\EMEA_ES_Payroll%20Bulk%20Directive\\EMEA_ES_Payroll%20Bulk%20Directive\\Directive requests for Retrenchments"
 
         # Define the counter file based on the external system identification
         if ext_sys_id == 'KUMBAIRO':
@@ -506,22 +507,21 @@ else:
     status_automation = "Failed"
     sys.exit(1)
 
-sys.stdout = sys.__stdout__
-end_time = time.time()
-execution_duration = round(end_time - start_time, 2)
-
-# Create an Outlook application object and Create a new email
-outlook = win32.Dispatch('Outlook.Application')
-email = outlook.CreateItem(0)
-email.Subject = 'Automation Team - Automation Log'
-email_body = "EMEA ES Payroll Bulk Directive" + "_" + str(datetime.today()) + "_" + str(status_automation) + "_" + str(execution_duration) + "_" + str(generated_records) + "_" + "number of Data Record generated"
-
-email.HTMLBody = email_body
-email_recipients = ['banele.madikane@angloamerican.com']
-email.To = '; '.join(email_recipients)
-
-# Attach the log file
-attachment = os.path.abspath(log_file_path)
-email.Attachments.Add(attachment)
-email.Send()
-
+# sys.stdout = sys.__stdout__
+# end_time = time.time()
+# execution_duration = round(end_time - start_time, 2)
+#
+# # Create an Outlook application object and Create a new email
+# outlook = win32.Dispatch('Outlook.Application')
+# email = outlook.CreateItem(0)
+# email.Subject = 'Automation Team - Automation Log'
+# email_body = "EMEA ES Payroll Bulk Directive" + "_" + str(datetime.today()) + "_" + str(status_automation) + "_" + str(execution_duration) + "_" + str(generated_records) + "_" + "number of Data Record generated"
+#
+# email.HTMLBody = email_body
+# email_recipients = ['banele.madikane@angloamerican.com']
+# email.To = '; '.join(email_recipients)
+#
+# # Attach the log file
+# attachment = os.path.abspath(log_file_path)
+# email.Attachments.Add(attachment)
+# email.Send()

@@ -7,19 +7,26 @@ import tkinter as tk
 from tkinter import filedialog
 import sys
 import win32com.client as win32
+import traceback
 
-user_name = os.getlogin()
-# Setting variables to check is this version matches with the GSS Automation Team's control
-application = "ES_Payroll Bulk Directive"
-version = "v04"
-path = f"C:/Users/{user_name}/Box/Automation Script Versions/versions.xlsx"
-df = pd.read_excel(path)
-filter_criteria = (df['app'] == application) & (df['versão'] == version)
-start_time = None
+# First checks if the stripped value is an empty string, indicating that the entire value consisted of zeros. If it is empty, it returns a single zero. Otherwise, it returns the stripped value.
+def clean_value(value):
+    if value.lstrip('0') == '':
+        return '0'
+    return value.lstrip('0')
 
-if not filter_criteria.any():
-    input('Outdated app, talk to the automation team. Press ENTER to close the code \n')
-    quit()
+# user_name = os.getlogin()
+# # Setting variables to check is this version matches with the GSS Automation Team's control
+# application = "ES_Payroll Bulk Directive"
+# version = "v04"
+# path = f"C:/Users/{user_name}/Box/Automation Script Versions/versions.xlsx"
+# df = pd.read_excel(path)
+# filter_criteria = (df['app'] == application) & (df['versão'] == version)
+# start_time = None
+#
+# if not filter_criteria.any():
+#     input('Outdated app, talk to the automation team. Press ENTER to close the code \n')
+#     quit()
 
 root = tk.Tk()
 root.withdraw()  # Hide the main window
@@ -30,6 +37,8 @@ root.destroy()  # Destroy the Tkinter window
 if not text_file_path:
     print("No file selected. Exiting...")
     sys.exit()
+
+user_name = os.getlogin()
 
 ################################ LOG PREPARATION ##################################
 
@@ -67,6 +76,7 @@ try:
     logging.info('The response text file has been read and processed successfully')
     status_automation = "Successfully"
 except Exception as e:
+    trace = traceback.format_exc()
     logging.error(f"An error occurred when reading and processing the file: Here is the error {e}")
     status_automation = "Failed"
 
@@ -90,14 +100,10 @@ try:
     logging.info("The header fields has been extracted successfully")
     status_automation = "Successfully"
 except Exception as e:
+    trace = traceback.format_exc()
     logging.error(f"An error occurred while extracting header fields: Here is the error {e}")
     status_automation = "Failed"
 
-# First checks if the stripped value is an empty string, indicating that the entire value consisted of zeros. If it is empty, it returns a single zero. Otherwise, it returns the stripped value.
-def clean_value(value):
-    if value.lstrip('0') == '':
-        return '0'
-    return value.lstrip('0')
 
 # iterates over each data_record in the data_records list and extracts specific fields from each data_record. It then appends the extracted fields as a list to the data_fields list
 data_fields = []
@@ -153,6 +159,7 @@ try:
         total_data_records = len(data_records)
         status_automation = "Successfully"
 except Exception as e:
+    trace = traceback.format_exc()
     logging.error(f"An error occurred while extracting data fields: Here is the error {e}")
     status_automation = "Failed"
 
@@ -161,55 +168,57 @@ trailer_fields = []
 try:
     trailer_fields = [
         trailer_record[0:1].strip(),
-        trailer_record[1:9].strip(),
-        trailer_record[9:29].strip(),
-        trailer_record[29:49].strip(),
-        trailer_record[49:69].strip(),
-        trailer_record[69:89].strip(),
-        trailer_record[89:109].strip(),
-        trailer_record[109:125].strip(),
-        trailer_record[125:145].strip(),
-        trailer_record[145:165].strip(),
-        trailer_record[165:185].strip(),
-        trailer_record[185:205].strip(),
-        trailer_record[205:225].strip(),
-        trailer_record[225:245].strip(),
-        trailer_record[245:265].strip(),
-        trailer_record[265:285].strip(),
-        trailer_record[285:305].strip(),
-        trailer_record[305:325].strip(),
+        clean_value(trailer_record[1:9].strip()),
+        clean_value(trailer_record[9:29].strip()),
+        clean_value(trailer_record[29:49].strip()),
+        clean_value(trailer_record[49:69].strip()),
+        clean_value(trailer_record[69:89].strip()),
+        clean_value(trailer_record[89:109].strip()),
+        clean_value(trailer_record[109:125].strip()),
+        clean_value(trailer_record[125:145].strip()),
+        clean_value(trailer_record[145:165].strip()),
+        clean_value(trailer_record[165:185].strip()),
+        clean_value(trailer_record[185:205].strip()),
+        clean_value(trailer_record[205:225].strip()),
+        clean_value(trailer_record[225:245].strip()),
+        clean_value(trailer_record[245:265].strip()),
+        clean_value(trailer_record[265:285].strip()),
+        clean_value(trailer_record[285:305].strip()),
+        clean_value(trailer_record[305:325].strip()),
     ]
     logging.info("The tailer fields has been extracted successfully")
     status_automation = "Successfully"
 except Exception as e:
+    trace = traceback.format_exc()
     logging.error(f"An error occurred while extracting trailer fields: Here is the error {e}")
     status_automation = "Failed"
 
-try:
-    # Create a DataFrame for header, data, and trailer records using the three lists
-    header_df = pd.DataFrame([header_fields], columns=["File section identifier", "Information type", "Information sub-type", "Test data indicator", "File series control field", "External system identification", "Interface version number", "Unique file identifier", "Date and time of file creation", "Unique file identifier of the file from which the response was generated", "Source file processing status", "Tax Directive Request Type"])
-    data_df = pd.DataFrame(data_fields, columns=["File section identifier", "Directive request ID number", "Directive application ID", "The Income Tax area to which this taxpayer belongs", "Income Tax reference number", "Directive ID (Original directive request)", "Request status", "Date of directive issue", "The start date of the validity period of this directive", "The end date of the validity period of this directive", "Gross amount of lump sum", "Date of accrual of lump sum", "The lump sum source code", "Services rendered local amount", "Services rendered local source code", "Services rendered abroad (foreign) amount", "Services rendered foreign source code", "Tax Withheld", "The assessment of tax year to which this tax directive applies", "Vested right pre-2 March 1998", "Amount Transferred", "Own contribution to a provident fund (up to 1 March 2016)", "Contributions not previously allowed as a deduction", "Transferred divorce benefit previously taxed", "Amount_exempt_based_on_services_outside_the_Republic", "AIPF member transfer contributions", "Amount exempt in terms of section 10(1)(o)(ii)", "Deemed provident fund contributions (After tax pension benefit)", "Full benefit used to purchase an annuity", "Tax free portion of the gross lump sum gratuity/remuneration", "Tax free portion of the gross lump sum gratuity/remuneration", "PAYE amount to be deducted from gross remuneration", "Frequency of deducting PAYE amount from gross lump sum gratuity/remuneration", "Contributions allowed as exemption from lump sum", "Approved monthly deemed remuneration", "IT 88L reference number", "Tax amount to be deducted for outstanding Assessed tax", "Assessed Tax Payment Reference Number", "Administrative Penalty", "Administrative Penalty Payment Reference Number", "Provisional Tax amount to be deducted for outstanding Provisional Tax", "Period for which Provisional tax is outstanding"])
-    trailer_df = pd.DataFrame([trailer_fields], columns=["File section identifier", "Number of records in this file", "Gross amount of lump sum", "PAYE amount to be deducted from gross remuneration", "Tax free portion of the gross lump sum gratuity/remuneration", "Tax amount to be deducted for outstanding Assessed tax", "Provisional Tax amount to be deducted for outstanding Provisional Tax", "Tax free portion of the gross lump sum gratuity/remuneration", "Vested right pre-2 March 1998", "Amount Transferred", "Own contribution to a provident fund (up to 1 March 2016)", "Contributions not previously allowed as a deduction", "Transferred divorce benefit previously taxed", "Amount_exempt_based_on_services_outside_the_Republic", "AIPF member transfer contributions", "Amount exempt in terms of section 10(1)(o)(ii)", "Administrative Penalty Payment Reference Number", "Full benefit used to purchase an annuity"])
-    logging.info("DataFrames has been created successfully")
-    status_automation = "Successfully"
-except Exception as e:
-    logging.error(f"An error occurred while creating DataFrames: Here is the error {e}")
-    status_automation = "Failed"
+if not status_automation == "Failed":
+    try:
+        # Create a DataFrame for header, data, and trailer records using the three lists
+        header_df = pd.DataFrame([header_fields], columns=["File section identifier", "Information type", "Information sub-type", "Test data indicator", "File series control field", "External system identification", "Interface version number", "Unique file identifier", "Date and time of file creation", "Unique file identifier of the file from which the response was generated", "Source file processing status", "Tax Directive Request Type"])
+        data_df = pd.DataFrame(data_fields, columns=["File section identifier", "Directive request ID number", "Directive application ID", "The Income Tax area to which this taxpayer belongs", "Income Tax reference number", "Directive ID (Original directive request)", "Request status", "Date of directive issue", "The start date of the validity period of this directive", "The end date of the validity period of this directive", "Gross amount of lump sum", "Date of accrual of lump sum", "The lump sum source code", "Services rendered local amount", "Services rendered local source code", "Services rendered abroad (foreign) amount", "Services rendered foreign source code", "Tax Withheld", "The assessment of tax year to which this tax directive applies", "Vested right pre-2 March 1998", "Amount Transferred", "Own contribution to a provident fund (up to 1 March 2016)", "Contributions not previously allowed as a deduction", "Transferred divorce benefit previously taxed", "Amount_exempt_based_on_services_outside_the_Republic", "AIPF member transfer contributions", "Amount exempt in terms of section 10(1)(o)(ii)", "Deemed provident fund contributions (After tax pension benefit)", "Full benefit used to purchase an annuity", "Tax free portion of the gross lump sum gratuity/remuneration", "Tax free portion of the gross lump sum gratuity/remuneration", "PAYE amount to be deducted from gross remuneration", "Frequency of deducting PAYE amount from gross lump sum gratuity/remuneration", "Contributions allowed as exemption from lump sum", "Approved monthly deemed remuneration", "IT 88L reference number", "Tax amount to be deducted for outstanding Assessed tax", "Assessed Tax Payment Reference Number", "Administrative Penalty", "Administrative Penalty Payment Reference Number", "Provisional Tax amount to be deducted for outstanding Provisional Tax", "Period for which Provisional tax is outstanding"])
+        trailer_df = pd.DataFrame([trailer_fields], columns=["File section identifier", "Number of records in this file", "Gross amount of lump sum", "PAYE amount to be deducted from gross remuneration", "Tax free portion of the gross lump sum gratuity/remuneration", "Tax amount to be deducted for outstanding Assessed tax", "Provisional Tax amount to be deducted for outstanding Provisional Tax", "Tax free portion of the gross lump sum gratuity/remuneration", "Vested right pre-2 March 1998", "Amount Transferred", "Own contribution to a provident fund (up to 1 March 2016)", "Contributions not previously allowed as a deduction", "Transferred divorce benefit previously taxed", "Amount_exempt_based_on_services_outside_the_Republic", "AIPF member transfer contributions", "Amount exempt in terms of section 10(1)(o)(ii)", "Administrative Penalty Payment Reference Number", "Full benefit used to purchase an annuity"])
+        logging.info("DataFrames has been created successfully")
 
-# Creates an Excel file and writes three DataFrames to it as separate sheets.
-response_excel_file = f"C:\\Users\\{user_name}\\PycharmProjects\\EMEA_ES_Payroll%20Bulk%20Directive\\EMEA_ES_Payroll%20Bulk%20Directive Response\\response_excel_file.xlsx"
-try:
-    with pd.ExcelWriter(response_excel_file) as writer:
-        header_df.to_excel(writer, sheet_name="Header Record", index=False)
-        data_df.to_excel(writer, sheet_name="Data Record", index=False)
-        trailer_df.to_excel(writer, sheet_name="Trailer Record", index=False)
-        logging.info("An excel file has been created successfully")
-        status_automation = "Successfully"
-except Exception as e:
-    logging.error(f"An error occurred while writing to Excel: {e}")
-    status_automation = "Failed"
 
-# sys.stdout = sys.__stdout__
+        # Creates an Excel file and writes three DataFrames to it as separate sheets.
+        # response_excel_file = f"C:\\Users\\{user_name}\\PycharmProjects\\EMEA_ES_Payroll%20Bulk%20Directive\\EMEA_ES_Payroll%20Bulk%20Directive Response\\response_excel_file.xlsx"
+        response_excel_file = f"C:\\Users\\{user_name}\\PycharmProjects\\EMEA_ES_Payroll%20Bulk%20Directive\\EMEA_ES_Payroll%20Bulk%20Directive\\Reading of the directive response file\\response_excel_file.xlsx"
+
+        with pd.ExcelWriter(response_excel_file) as writer:
+            header_df.to_excel(writer, sheet_name="Header Record", index=False)
+            data_df.to_excel(writer, sheet_name="Data Record", index=False)
+            trailer_df.to_excel(writer, sheet_name="Trailer Record", index=False)
+            logging.info("An excel file has been created successfully")
+            status_automation = "Successfully"
+
+    except Exception as e:
+        trace = traceback.format_exc()
+        logging.error(f"An error occurred while writing to Excel: {e}")
+        status_automation = "Failed"
+
+sys.stdout = sys.__stdout__
 start_time = time.time()
 end_time = time.time()
 execution_duration = round(end_time - start_time, 2)

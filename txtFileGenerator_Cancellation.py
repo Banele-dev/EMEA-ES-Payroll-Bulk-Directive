@@ -14,17 +14,17 @@ import time
 warnings.filterwarnings("ignore", category=UserWarning)
 
 ## Setting variables to check is this version matches with the GSS Automation Team's control
-application = "ES_Payroll Bulk Directive"
-version = "v03"
-user_name = os.getlogin()
-path = f"C:/Users/{user_name}/Box/Automation Script Versions/versions.xlsx"
-df = pd.read_excel(path)
-filter_criteria = (df['app'] == application) & (df['versão'] == version)
-start_time = None
-
-if not filter_criteria.any():
-    input('Outdated app, talk to the automation team. Press ENTER to close the code \n')
-    quit()
+# application = "ES_Payroll Bulk Directive"
+# version = "v04"
+# user_name = os.getlogin()
+# path = f"C:/Users/{user_name}/Box/Automation Script Versions/versions.xlsx"
+# df = pd.read_excel(path)
+# filter_criteria = (df['app'] == application) & (df['versão'] == version)
+# start_time = None
+#
+# if not filter_criteria.any():
+#     input('Outdated app, talk to the automation team. Press ENTER to close the code \n')
+#     quit()
 
 # Initialize Tkinter
 root = Tk()
@@ -125,7 +125,7 @@ log_file_name = f"ExecutionLog_{datetime.now().strftime('%d%m%Y%H%M')}"+".txt"
 log_file_path = os.path.join(log_control_path, log_file_name)
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler(log_file_path),
@@ -159,8 +159,9 @@ try:
 
     # Check the external system identification value
     ext_sys_id = header_data.iloc[0]['External system identification']
-    # file_path = f"C:\\Users\\{user_name}\\Desktop"
-    file_path = f"C:\\Users\\{user_name}\\PycharmProjects\\EMEA_ES_Payroll%20Bulk%20Directive\\EMEA_ES_Payroll Bulk Directive Cancellation"
+    # file_path = f"C:\\Users\\bmadikane\\PycharmProjects\\EMEA_ES_Payroll%20Bulk%20Directive\\EMEA_ES_Payroll Bulk Directive Cancellation"
+    file_path = f"C:\\Users\\bmadikane\\PycharmProjects\\EMEA_ES_Payroll%20Bulk%20Directive\\EMEA_ES_Payroll%20Bulk%20Directive\\Cancellation of Processed Directives"
+
 
     # Define the counter file based on the external system identification
     if ext_sys_id == 'KUMBAIRO':
@@ -174,7 +175,7 @@ try:
             with open(counter_file, "w") as file:
                 file.write("0")
     else:
-        logging.error(f"Unsupported external system identification: {ext_sys_id}. Exiting...")
+        logging.info(f"Unsupported external system identification: {ext_sys_id}. Exiting...")
         sys.exit(1)
 
     # Read the last used number from the file
@@ -206,7 +207,7 @@ try:
     status_automation = "Successfully"
 
 except Exception as e:
-    logging.error(f"Error opening the database, please check the data content again. Here it follows the error: {e}")
+    logging.info(f"Error opening the database, please check the data content again. Here it follows the error: {e}")
     status_automation = "Failed"
 
 
@@ -221,7 +222,7 @@ email.Subject = 'Automation Team - Automation Log'
 email_body = "EMEA ES Payroll Bulk Directive" + "_" + str(datetime.today()) + "_" + str(status_automation) + "_" + str(execution_duration) + "_" + str(generated_records) + "_" + "number of Data Record generated"
 
 email.HTMLBody = email_body
-email_recipients = ['banele.madikane@angloamerican.com', 'breno.andrade@angloamerican.com']
+email_recipients = ['banele.madikane@angloamerican.com']
 email.To = '; '.join(email_recipients)
 
 # Attach the log file
