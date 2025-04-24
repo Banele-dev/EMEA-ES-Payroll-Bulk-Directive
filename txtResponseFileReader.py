@@ -10,23 +10,12 @@ import win32com.client as win32
 import traceback
 
 # First checks if the stripped value is an empty string, indicating that the entire value consisted of zeros. If it is empty, it returns a single zero. Otherwise, it returns the stripped value.
+# Convert the value to Rand and cents.
 def clean_value(value):
-    if value.lstrip('0') == '':
-        return '0'
-    return value.lstrip('0')
-
-# user_name = os.getlogin()
-# # Setting variables to check is this version matches with the GSS Automation Team's control
-# application = "ES_Payroll Bulk Directive"
-# version = "v04"
-# path = f"C:/Users/{user_name}/Box/Automation Script Versions/versions.xlsx"
-# df = pd.read_excel(path)
-# filter_criteria = (df['app'] == application) & (df['versão'] == version)
-# start_time = None
-#
-# if not filter_criteria.any():
-#     input('Outdated app, talk to the automation team. Press ENTER to close the code \n')
-#     quit()
+    stripped_value = value.lstrip('0')
+    if stripped_value == '' or stripped_value == '0' or stripped_value == '000000000000000':
+        return '0.00'
+    return f"{stripped_value[:-2]}.{stripped_value[-2:]}"
 
 root = tk.Tk()
 root.withdraw()  # Hide the main window
@@ -152,7 +141,6 @@ try:
             data_record[450:469].strip(),  # admin_penalty_prn
             data_record[469:514].strip(),  # provisional_tax_amount
             data_record[514:532].strip(),  # provisional_tax_period
-            # data_record[532:589].strip(),  # Provisional Tax Payment Reference Number
         ])
         logging.info("The data fields has been extracted successfully")
         logging.info(f"Number of data record to be generated: {len(data_records)}")
@@ -203,8 +191,8 @@ if not status_automation == "Failed":
 
 
         # Creates an Excel file and writes three DataFrames to it as separate sheets.
-        # response_excel_file = f"C:\\Users\\{user_name}\\PycharmProjects\\EMEA_ES_Payroll%20Bulk%20Directive\\EMEA_ES_Payroll%20Bulk%20Directive Response\\response_excel_file.xlsx"
-        response_excel_file = f"C:\\Users\\{user_name}\\PycharmProjects\\EMEA_ES_Payroll%20Bulk%20Directive\\EMEA_ES_Payroll%20Bulk%20Directive\\Reading of the directive response file\\response_excel_file.xlsx"
+        response_excel_file = f"C:\\Users\\{user_name}\\Documents\\EMEA_ES_Payroll%20Bulk%20Directive\\Reading of the directive response file\\response_excel_file.xlsx"
+        # response_excel_file = f"C:\\Users\\Public\\Documents\\EMEA_ES_Payroll%20Bulk%20Directive\\EMEA_ES_Payroll%20Bulk%20Directive\\Reading of the directive response file\\response_excel_file.xlsx"
 
         with pd.ExcelWriter(response_excel_file) as writer:
             header_df.to_excel(writer, sheet_name="Header Record", index=False)
