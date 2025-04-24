@@ -159,9 +159,8 @@ try:
 
     # Check the external system identification value
     ext_sys_id = header_data.iloc[0]['External system identification']
-    # file_path = f"C:\\Users\\bmadikane\\PycharmProjects\\EMEA_ES_Payroll%20Bulk%20Directive\\EMEA_ES_Payroll Bulk Directive Cancellation"
-    file_path = f"C:\\Users\\bmadikane\\PycharmProjects\\EMEA_ES_Payroll%20Bulk%20Directive\\EMEA_ES_Payroll%20Bulk%20Directive\\Cancellation of Processed Directives"
-
+    file_path = f"C:\\Users\\{user_name}\\Documents\\EMEA_ES_Payroll%20Bulk%20Directive\\Cancellation of Processed Directives"
+    # file_path = f"C:\\Users\\Public\\Documents\\EMEA_ES_Payroll%20Bulk%20Directive\\EMEA_ES_Payroll%20Bulk%20Directive\\Cancellation of Processed Directives"
 
     # Define the counter file based on the external system identification
     if ext_sys_id == 'KUMBAIRO':
@@ -171,6 +170,21 @@ try:
                 file.write("0")
     elif ext_sys_id == 'RUSTPLAT':
         counter_file = os.path.join(file_path, "platinum_counter_cancellations.txt")
+        if not os.path.exists(counter_file):
+            with open(counter_file, "w") as file:
+                file.write("0")
+    elif ext_sys_id == 'MODIKWA1':
+        counter_file = os.path.join(file_path, "modikwa_counter_retrenchment.txt")
+        if not os.path.exists(counter_file):
+            with open(counter_file, "w") as file:
+                file.write("0")
+    elif ext_sys_id == 'ANGLOAME':
+        counter_file = os.path.join(file_path, "GSS_counter_retrenchment.txt")
+        if not os.path.exists(counter_file):
+            with open(counter_file, "w") as file:
+                file.write("0")
+    elif ext_sys_id == 'ANGLOCOR':
+        counter_file = os.path.join(file_path, "ACSSA_counter_retrenchment.txt")
         if not os.path.exists(counter_file):
             with open(counter_file, "w") as file:
                 file.write("0")
