@@ -220,8 +220,8 @@ if info_type == 'IRP3S': # Share Payments
 
         # Check the external system identification value
         ext_sys_id = header_data.iloc[0]['External system identification']
-        # file_path = f"C:\\Users\\{user_name}\\Documents\\EMEA_ES_Payroll%20Bulk%20Directive"
-        file_path = f"C:\\Users\\{user_name}\\PycharmProjects\\EMEA_ES_Payroll%20Bulk%20Directive\\EMEA_ES_Payroll%20Bulk%20Directive\\Directive requests for Share Payments"
+        file_path = f"C:\\Users\\{user_name}\\Documents\\EMEA_ES_Payroll%20Bulk%20Directive\\Directive requests for Share Payments"
+        # file_path = f"C:\\Users\\Public\\Documents\\EMEA_ES_Payroll%20Bulk%20Directive\\EMEA_ES_Payroll%20Bulk%20Directive\\Directive requests for Share Payments"
 
         # Define the counter file based on the external system identification
         if ext_sys_id == 'KUMBAIRO':
@@ -231,6 +231,21 @@ if info_type == 'IRP3S': # Share Payments
                     file.write("0")
         elif ext_sys_id == 'RUSTPLAT':
             counter_file = os.path.join(file_path, "platinum_counter_sharepayments.txt")
+            if not os.path.exists(counter_file):
+                with open(counter_file, "w") as file:
+                    file.write("0")
+        elif ext_sys_id == 'MODIKWA1':
+            counter_file = os.path.join(file_path, "modikwa_counter_retrenchment.txt")
+            if not os.path.exists(counter_file):
+                with open(counter_file, "w") as file:
+                    file.write("0")
+        elif ext_sys_id == 'ANGLOAME':
+            counter_file = os.path.join(file_path, "GSS_counter_retrenchment.txt")
+            if not os.path.exists(counter_file):
+                with open(counter_file, "w") as file:
+                    file.write("0")
+        elif ext_sys_id == 'ANGLOCOR':
+            counter_file = os.path.join(file_path, "ACSSA_counter_retrenchment.txt")
             if not os.path.exists(counter_file):
                 with open(counter_file, "w") as file:
                     file.write("0")
@@ -305,18 +320,22 @@ elif info_type == 'IRP3A': # Retrenchments
             # Generating Data Fields
             sec_id = data_record.process_file_section_identifier(row)
             reg_seq_num = data_record.process_request_seq_number(row)
+            applicant_type = data_record.process_applicant_type(row)
+            fund_cr_ind = data_record.process_fund_cr_ind(row)
             paye_ref_no = data_record.process_employer_paye_reference_number(row)
             emp_name = data_record.process_employer_name(row)
-            emp_physical_address = data_record.process_employer_physical_address(row)
-            emp_physical_post_code = data_record.process_employer_physical_post_code(row)
+            # emp_physical_address = data_record.process_employer_physical_address(row)
+            # emp_physical_post_code = data_record.process_employer_physical_post_code(row)
             emp_post_address = data_record.process_employer_post_address(row)
             emp_post_code = data_record.process_employer_post_code(row)
             emp_dial_code = data_record.process_employer_dial_code(row)
             emp_tel_no = data_record.process_employer_tel_no(row)
             emp_contact_person = data_record.process_employer_contact_person(row)
             email_address_administrator = data_record.process_email_address_administrator(row)
+            fsca_regis_no = data_record.process_fsca_regis_no(row)
+            fund_number = data_record.process_fund_number(row)
             it_ref_no = data_record.process_income_tax_reference_number(row)
-            no_it_ref_reason_text = data_record.process_no_it_ref_reason_text(row)
+            # no_it_ref_reason_text = data_record.process_no_it_ref_reason_text(row)
             tp_id = data_record.process_taxpayer_sa_id_number(row)
             tp_other_id = data_record.process_taxpayer_passport_no_permit_no(row)
             passport_country = data_record.process_passport_country(row)
@@ -325,17 +344,21 @@ elif info_type == 'IRP3A': # Retrenchments
             tp_surname = data_record.process_taxpayer_surname(row)
             tp_inits = data_record.process_taxpayer_inits(row)
             tp_firstnames = data_record.process_taxpayer_firstnames(row)
-            tp_res_address = data_record.process_tp_res_address(row)
-            tp_res_code = data_record.process_tp_res_code(row)
+            # tp_res_address = data_record.process_tp_res_address(row)
+            # tp_res_code = data_record.process_tp_res_code(row)
             tp_post_address = data_record.process_tp_post_address(row)
             tp_post_code = data_record.process_tp_post_code(row)
             tax_year = data_record.process_tax_year(row)
             dir_reason = data_record.process_dir_reason(row)
+            start_date_accrual = data_record.process_start_date_accrual(row)
+            end_date_accrual = data_record.process_end_date_accrual(row)
             tp_annual_income = data_record.process_tp_annual_income(row)
             date_of_accrual = data_record.process_date_of_accrual(row)
             severance_benef_payable = data_record.process_severance_benef_payable(row)
             employ_owned_policy_amount = data_record.process_employ_owned_policy_amount(row)
             SECT_10_1_GB_III_COMP = data_record.process_SECT_10_1_GB_III_COMP(row)
+            savings_withdrawal_benefit = data_record.process_savings_withdrawal_benefit(row)
+            backdated_salaries_pensions = data_record.process_backdated_salaries_pensions(row)
             leave_payment = data_record.process_leave_payment(row)
             notice_payment = data_record.process_notice_payment(row)
             arbitration_ccma_award = data_record.process_arbitration_ccma_award(row)
@@ -346,7 +369,7 @@ elif info_type == 'IRP3A': # Retrenchments
             paper_resp = data_record.process_paper_resp(row)
 
             # Combine all the parts into one header string
-            data_record = f"{sec_id}{reg_seq_num}{paye_ref_no}{emp_name}{emp_physical_address}{emp_physical_post_code}{emp_post_address}{emp_post_code}{emp_dial_code}{emp_tel_no}{emp_contact_person}{email_address_administrator}{it_ref_no}{no_it_ref_reason_text}{tp_id}{tp_other_id}{passport_country}{tp_employee_no}{tp_dob}{tp_surname}{tp_inits}{tp_firstnames}{tp_res_address}{tp_res_code}{tp_post_address}{tp_post_code}{tax_year}{dir_reason}{tp_annual_income}{date_of_accrual}{severance_benef_payable}{employ_owned_policy_amount}{SECT_10_1_GB_III_COMP}{leave_payment}{notice_payment}{arbitration_ccma_award}{other_amount_nature}{other_amount}{gross_amount_payable}{declaration_ind}{paper_resp}"
+            data_record = f"{sec_id}{reg_seq_num}{applicant_type}{fund_cr_ind}{paye_ref_no}{emp_name}{emp_post_address}{emp_post_code}{emp_dial_code}{emp_tel_no}{emp_contact_person}{email_address_administrator}{fsca_regis_no}{fund_number}{it_ref_no}{tp_id}{tp_other_id}{passport_country}{tp_employee_no}{tp_dob}{tp_surname}{tp_inits}{tp_firstnames}{tp_post_address}{tp_post_code}{tax_year}{dir_reason}{start_date_accrual}{end_date_accrual}{tp_annual_income}{date_of_accrual}{severance_benef_payable}{employ_owned_policy_amount}{SECT_10_1_GB_III_COMP}{savings_withdrawal_benefit}{backdated_salaries_pensions}{leave_payment}{notice_payment}{arbitration_ccma_award}{other_amount_nature}{other_amount}{gross_amount_payable}{declaration_ind}{paper_resp}"
             logging.info(f"Line number {str(row['Line_Num'])} from Data Record generated successfully.")
             status_automation = "Successfully"
             return data_record
@@ -374,8 +397,6 @@ elif info_type == 'IRP3A': # Retrenchments
             arbitration_ccma_award = '{:0>20}'.format(int(arbitration_ccma_award_sum * 100))
             other_amount = '{:0>20}'.format(int(other_amount_sum * 100))
             gross_amount_payable = '{:0>20}'.format(int(gross_amount_payable_sum * 100))
-
-            print("Sum of Taxpayer annual income:", annual_income_sum)
 
             # Combine all the parts into one trailer string
             trailer_record = f"{sec_id}{rec_no}{annual_income}{severance_benef_pay}{employ_owned_policy_amt}{SECT_10_1_GB_III_COMP}{leave_payment}{notice_payment}{arbitration_ccma_award}{other_amount}{gross_amount_payable}"
@@ -451,8 +472,8 @@ elif info_type == 'IRP3A': # Retrenchments
 
         # Check the external system identification value
         ext_sys_id = header_data.iloc[0]['External system identification']
-        # file_path = f"C:\\Users\\{user_name}\\Documents\\EMEA_ES_Payroll%20Bulk%20Directive"
-        file_path = f"C:\\Users\\{user_name}\\PycharmProjects\\EMEA_ES_Payroll%20Bulk%20Directive\\EMEA_ES_Payroll%20Bulk%20Directive\\Directive requests for Retrenchments"
+        file_path = f"C:\\Users\\{user_name}\\Documents\\EMEA_ES_Payroll%20Bulk%20Directive\\Directive requests for Retrenchments"
+        # file_path = f"C:\\Users\\Public\\Documents\\EMEA_ES_Payroll%20Bulk%20Directive\\EMEA_ES_Payroll%20Bulk%20Directive\\Directive requests for Retrenchments"
 
         # Define the counter file based on the external system identification
         if ext_sys_id == 'KUMBAIRO':
@@ -462,6 +483,21 @@ elif info_type == 'IRP3A': # Retrenchments
                     file.write("0")
         elif ext_sys_id == 'RUSTPLAT':
             counter_file = os.path.join(file_path, "platinum_counter_retrenchment.txt")
+            if not os.path.exists(counter_file):
+                with open(counter_file, "w") as file:
+                    file.write("0")
+        elif ext_sys_id == 'MODIKWA1':
+            counter_file = os.path.join(file_path, "modikwa_counter_retrenchment.txt")
+            if not os.path.exists(counter_file):
+                with open(counter_file, "w") as file:
+                    file.write("0")
+        elif ext_sys_id == 'ANGLOAME':
+            counter_file = os.path.join(file_path, "GSS_counter_retrenchment.txt")
+            if not os.path.exists(counter_file):
+                with open(counter_file, "w") as file:
+                    file.write("0")
+        elif ext_sys_id == 'ANGLOCOR':
+            counter_file = os.path.join(file_path, "ACSSA_counter_retrenchment.txt")
             if not os.path.exists(counter_file):
                 with open(counter_file, "w") as file:
                     file.write("0")
@@ -507,21 +543,21 @@ else:
     status_automation = "Failed"
     sys.exit(1)
 
-# sys.stdout = sys.__stdout__
-# end_time = time.time()
-# execution_duration = round(end_time - start_time, 2)
-#
-# # Create an Outlook application object and Create a new email
-# outlook = win32.Dispatch('Outlook.Application')
-# email = outlook.CreateItem(0)
-# email.Subject = 'Automation Team - Automation Log'
-# email_body = "EMEA ES Payroll Bulk Directive" + "_" + str(datetime.today()) + "_" + str(status_automation) + "_" + str(execution_duration) + "_" + str(generated_records) + "_" + "number of Data Record generated"
-#
-# email.HTMLBody = email_body
-# email_recipients = ['banele.madikane@angloamerican.com']
-# email.To = '; '.join(email_recipients)
-#
-# # Attach the log file
-# attachment = os.path.abspath(log_file_path)
-# email.Attachments.Add(attachment)
-# email.Send()
+sys.stdout = sys.__stdout__
+end_time = time.time()
+execution_duration = round(end_time - start_time, 2)
+
+# Create an Outlook application object and Create a new email
+outlook = win32.Dispatch('Outlook.Application')
+email = outlook.CreateItem(0)
+email.Subject = 'Automation Team - Automation Log'
+email_body = "EMEA ES Payroll Bulk Directive" + "_" + str(datetime.today()) + "_" + str(status_automation) + "_" + str(execution_duration) + "_" + str(generated_records) + "_" + "number of Data Record generated"
+
+email.HTMLBody = email_body
+email_recipients = ['banele.madikane@angloamerican.com']
+email.To = '; '.join(email_recipients)
+
+# Attach the log file
+attachment = os.path.abspath(log_file_path)
+email.Attachments.Add(attachment)
+email.Send()
