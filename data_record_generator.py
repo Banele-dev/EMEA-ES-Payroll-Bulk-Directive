@@ -11,6 +11,15 @@ class DataRecord:
     def process_request_seq_number(self, row):
         return str(row['Directive request ID number'] if pd.notnull(row['Directive request ID number']) else ' ').ljust(20)
 
+    def process_applicant_type(self, row):
+        return str(row['Applicant Type'] if pd.notnull(row['Applicant Type']) else ' ').ljust(2)
+
+    def process_fund_cr_ind(self, row):
+        if row['Applicant Type'] == '01':
+            return ' '.ljust(2)
+        else:
+            return str(row['Fund create reason'] if pd.notnull(row['Fund create reason']) else ' ').ljust(2)
+
     def process_employer_paye_reference_number(self, row):
         return row['Employer’s PAYE reference number']
 
@@ -54,20 +63,48 @@ class DataRecord:
     def process_email_address_administrator(self, row):
         return str(row['Employer email address']).ljust(50)[:50] if pd.notnull(row['Employer email address']) else ' ' * 50
 
+    def process_fsca_regis_no(self, row):
+        return str(row['FSCA Registration number of fund'] if pd.notnull(row['FSCA Registration number of fund']) else ' ').ljust(19)
+
+    def process_fund_number(self, row):
+        return str(row['Fund Approval No']).zfill(11) if pd.notnull(row['Fund Approval No']) else ' ' * 11
+
     def process_income_tax_reference_number(self, row):
         return str(row['Income Tax reference number']).zfill(10) if pd.notnull(row['Income Tax reference number']) else ' ' * 10
 
     def process_no_it_ref_reason_text(self, row):
         return str(row['NO-IT-REF-REASON-TEXT']).ljust(65)[:65] if pd.notnull(row['NO-IT-REF-REASON-TEXT']) else ' ' * 65
 
+    # def process_taxpayer_sa_id_number(self, row):
+    #     return row['Taxpayer SA ID number'] if pd.notnull(row['Taxpayer SA ID number']) else ' '
+    #
+    # def process_taxpayer_sa_id_number(self, row):
+    #     if pd.isnull(row['Taxpayer Passport No / Permit No']):
+    #         return str(row['Taxpayer SA ID number']).zfill(13) if pd.notnull(row['Taxpayer SA ID number']) else ' ' * 13
+    #     return ' ' * 13
+
     def process_taxpayer_sa_id_number(self, row):
-        return row['Taxpayer SA ID number'] if pd.notnull(row['Taxpayer SA ID number']) else ' '
+        # Check if the 'Taxpayer Passport No / Permit No' is null
+        if pd.isnull(row['Taxpayer Passport No / Permit No']):
+            id_number = row['Taxpayer SA ID number']
+
+            # Handle the case where the ID number might be a float
+            if pd.notnull(id_number):
+                # If it's a float, convert it to int and then to string, and pad with zeros
+                if isinstance(id_number, float):
+                    id_number = str(int(id_number))
+                else:
+                    id_number = str(id_number)
+
+                return id_number.zfill(13)  # Zero-fill to 13 digits
+            else:
+                return ' ' * 13  # Return 13 spaces if the ID number is null
+        return ' ' * 13
 
     def process_taxpayer_passport_no_permit_no(self, row):
         if pd.isnull(row['Taxpayer SA ID number']):
             return str(row['Taxpayer Passport No / Permit No']).ljust(18)[:18] if pd.notnull(row['Taxpayer Passport No / Permit No']) else ' ' * 18
-        else:
-            return ' ' * 18
+        return ' ' * 18
 
     def process_passport_country(self, row):
         if pd.isnull(row['Taxpayer SA ID number']):
@@ -120,6 +157,12 @@ class DataRecord:
     def process_dir_reason(self, row):
         return str(row['Reason for directive'])[:2] if pd.notnull(row['Reason for directive']) else ' ' * 2
 
+    def process_start_date_accrual(self, row):
+        return datetime.strptime(str(row['Start Date of the Accrual period']), '%Y.%m.%d').strftime('%Y%m%d') if pd.notnull(row['Start Date of the Accrual period']) else ' ' * 8
+
+    def process_end_date_accrual(self, row):
+        return datetime.strptime(str(row['End Date of the Accrual period']), '%Y.%m.%d').strftime('%Y%m%d') if pd.notnull(row['End Date of the Accrual period']) else ' ' * 8
+
     def process_tp_annual_income(self, row):
         taxpayer_income = row['Taxpayer annual income'] if pd.notnull(row['Taxpayer annual income']) else ' '
         if pd.isnull(taxpayer_income):
@@ -136,6 +179,26 @@ class DataRecord:
 
     def process_date_of_accrual(self, row):
         return datetime.strptime(str(row['Date when gross amount accrued']), '%Y.%m.%d').strftime('%Y%m%d') if pd.notnull(row['Date when gross amount accrued']) else ' ' * 8
+
+    def process_severance_benef_payable(self, row):
+        severance_benef_payable = row['SEVERANCE-BENEF-PAYABLE'] if pd.notnull(row['SEVERANCE-BENEF-PAYABLE']) else 0
+        return str(int(severance_benef_payable * 100)).zfill(15)
+
+    def process_employ_owned_policy_amount(self, row):
+        employ_owned_policy_amount = row['EMPLOY-OWNED-POLICY-AMOUNT'] if pd.notnull(row['EMPLOY-OWNED-POLICY-AMOUNT']) else 0
+        return str(int(employ_owned_policy_amount * 100)).zfill(15)
+
+    def process_SECT_10_1_GB_III_COMP(self, row):
+        SECT_10_1_GB_III_COMP = row['SECT-10-1-GB-III-COMP'] if pd.notnull(row['SECT-10-1-GB-III-COMP']) else 0
+        return str(int(SECT_10_1_GB_III_COMP * 100)).zfill(15)
+
+    def process_savings_withdrawal_benefit(self, row):
+        savings_withdrawal_benefit = row['Savings Withdrawal Benefit'] if pd.notnull(row['Savings Withdrawal Benefit']) else 0
+        return str(int(savings_withdrawal_benefit * 100)).zfill(15)
+
+    def process_backdated_salaries_pensions(self, row):
+        backdated_salaries_pensions = row['Backdated Salaries or Pensions'] if pd.notnull(row['Backdated Salaries or Pensions']) else 0
+        return str(int(backdated_salaries_pensions * 100)).zfill(15)
 
     def process_empl_tax_resident_ind(self, row):
         return row['Is the employee a tax resident?'] if pd.notnull(row['Is the employee a tax resident?']) else ' '
@@ -215,18 +278,6 @@ class DataRecord:
     def process_taxable_portion(self, row):
         taxable_portion = row['Taxable portion'] if pd.notnull(row['Taxable portion']) else 0
         return str(int(taxable_portion * 100)).zfill(15)
-
-    def process_severance_benef_payable(self, row):
-        severance_benef_payable = row['SEVERANCE-BENEF-PAYABLE'] if pd.notnull(row['SEVERANCE-BENEF-PAYABLE']) else 0
-        return str(int(severance_benef_payable * 100)).zfill(15)
-
-    def process_employ_owned_policy_amount(self, row):
-        employ_owned_policy_amount = row['EMPLOY-OWNED-POLICY-AMOUNT'] if pd.notnull(row['EMPLOY-OWNED-POLICY-AMOUNT']) else 0
-        return str(int(employ_owned_policy_amount * 100)).zfill(15)
-
-    def process_SECT_10_1_GB_III_COMP(self, row):
-        SECT_10_1_GB_III_COMP = row['SECT-10-1-GB-III-COMP'] if pd.notnull(row['SECT-10-1-GB-III-COMP']) else 0
-        return str(int(SECT_10_1_GB_III_COMP * 100)).zfill(15)
 
     def process_leave_payment(self, row):
         leave_payment = row['LEAVE-PAYMENT'] if pd.notnull(row['LEAVE-PAYMENT']) else 0
